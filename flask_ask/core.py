@@ -57,10 +57,6 @@ from . import models
 
 _converters = {'date': to_date, 'time': to_time, 'timedelta': to_timedelta}
 
-# Adding this from verifier.py so that we can raise an exception 
-# for a low-level invalid request. Such as a POST with an empty body.
-class VerificationError(Exception): pass
-
 # A simple object used to store detailed slot data
 # It takes the arg_value (after default+convert)
 # It then extracts the relevant custom slot info and match type.
@@ -729,8 +725,7 @@ class Ask(object):
             alexa_request_payload = json.loads(raw_body)
         except ValueError:
             # Try to not raise a 500
-            return "", 400
-            #raise VerificationError("Invalid request body. JSON load failed.")
+            return False
 
         if verify:
             cert_url = flask_request.headers['Signaturecertchainurl']
@@ -804,6 +799,8 @@ class Ask(object):
 
     def _flask_view_func(self, *args, **kwargs):
         ask_payload = self._alexa_request(verify=self.ask_verify_requests)
+        if not ask_payload:
+            return "", 400
         dbgdump(ask_payload)
         request_body = models._Field(ask_payload)
 
