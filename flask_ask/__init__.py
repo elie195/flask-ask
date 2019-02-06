@@ -16,4 +16,16 @@ from .core import (
     convert_errors
 )
 
-from .models import question, statement, audio, delegate, _Response
+from .models import (
+    question,
+    statement,
+    audio,
+    delegate,
+    elicit_slot,
+    confirm_slot,
+    confirm_intent,
+    buy,
+    upsell,
+    refund,
+    _Response
+)

@@ -4,10 +4,7 @@ from xml.etree import ElementTree
 import aniso8601
 from .core import session, context, current_stream, stream_cache, dbgdump
 from .cache import push_stream
-from . import logger
 import uuid
-
-from pprint import pprint
 
 
 class _Field(dict):
@@ -204,13 +201,129 @@ class question(_Response):
         return self
 
 
+class buy(_Response):
+
+    def __init__(self, productId=None):
+        self._response = {
+            'shouldEndSession': True,
+            'directives': [{
+              'type': 'Connections.SendRequest',
+              'name': 'Buy',          
+              'payload': {
+                         'InSkillProduct': {
+                             'productId': productId
+                         }
+               },
+              'token': 'correlationToken'              
+            }]
+        }
+
+
+class refund(_Response):
+
+    def __init__(self, productId=None):
+        self._response = {
+            'shouldEndSession': True,
+            'directives': [{
+              'type': 'Connections.SendRequest',
+              'name': 'Cancel',          
+              'payload': {
+                         'InSkillProduct': {
+                             'productId': productId
+                         }
+               },
+              'token': 'correlationToken'              
+            }]
+        }
+
+class upsell(_Response):
+
+    def __init__(self, productId=None, msg=None):
+        self._response = {
+            'shouldEndSession': True,
+            'directives': [{
+              'type': 'Connections.SendRequest',
+              'name': 'Upsell',          
+              'payload': {
+                         'InSkillProduct': {
+                             'productId': productId
+                         },
+                         'upsellMessage': msg
+               },
+              'token': 'correlationToken'              
+            }]
+        }
+
 class delegate(_Response):
 
-    def __init__(self, speech):
+    def __init__(self, updated_intent=None):
         self._response = {
             'shouldEndSession': False,
             'directives': [{'type': 'Dialog.Delegate'}]
         }
+
+        if updated_intent:
+            self._response['directives'][0]['updatedIntent'] = updated_intent
+
+
+class elicit_slot(_Response):
+    """
+    Sends an ElicitSlot directive.
+    slot - The slot name to elicit
+    speech - The output speech
+    updated_intent - Optional updated intent
+    """
+
+    def __init__(self, slot, speech, updated_intent=None):
+        self._response = {
+            'shouldEndSession': False,
+            'directives': [{
+                'type': 'Dialog.ElicitSlot',
+                'slotToElicit': slot,
+            }],
+            'outputSpeech': _output_speech(speech),
+        }
+
+        if updated_intent:
+            self._response['directives'][0]['updatedIntent'] = updated_intent
+
+class confirm_slot(_Response):
+    """
+    Sends a ConfirmSlot directive.
+    slot - The slot name to confirm
+    speech - The output speech
+    updated_intent - Optional updated intent
+    """
+
+    def __init__(self, slot, speech, updated_intent=None):
+        self._response = {
+            'shouldEndSession': False,
+            'directives': [{
+                'type': 'Dialog.ConfirmSlot',
+                'slotToConfirm': slot,
+            }],
+            'outputSpeech': _output_speech(speech),
+        }
+
+        if updated_intent:
+            self._response['directives'][0]['updatedIntent'] = updated_intent
+
+class confirm_intent(_Response):
+    """
+    Sends a ConfirmIntent directive.
+    
+    """
+    def __init__(self, speech, updated_intent=None):
+        self._response = {
+            'shouldEndSession': False,
+            'directives': [{
+                'type': 'Dialog.ConfirmIntent',
+            }],
+            'outputSpeech': _output_speech(speech),
+        }
+
+        if updated_intent:
+            self._response['directives'][0]['updatedIntent'] = updated_intent
 
 
 class audio(_Response):
