@@ -728,7 +728,9 @@ class Ask(object):
         try:
             alexa_request_payload = json.loads(raw_body)
         except ValueError:
-            raise VerificationError("Invalid request body. JSON load failed.")
+            # Try to not raise a 500
+            return "", 400
+            #raise VerificationError("Invalid request body. JSON load failed.")
 
         if verify:
             cert_url = flask_request.headers['Signaturecertchainurl']
