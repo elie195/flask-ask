@@ -724,7 +724,7 @@ class Ask(object):
         try:
             alexa_request_payload = json.loads(raw_body)
         except ValueError:
-            # Try to not raise a 500
+            # Try to not raise a 500 when a request with an empty body is made
             return False
 
         if verify:
@@ -799,6 +799,7 @@ class Ask(object):
 
     def _flask_view_func(self, *args, **kwargs):
         ask_payload = self._alexa_request(verify=self.ask_verify_requests)
+        # Will return False if the JSON payload is invalid/empty
         if not ask_payload:
             return "", 400
         dbgdump(ask_payload)
