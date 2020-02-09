@@ -7,7 +7,8 @@ from datetime import datetime
 from functools import wraps, partial
 
 import aniso8601
-from werkzeug.contrib.cache import SimpleCache
+#from werkzeug.contrib.cache import SimpleCache
+from flask_caching import Cache
 from werkzeug.local import LocalProxy, LocalStack
 from jinja2 import BaseLoader, ChoiceLoader, TemplateNotFound
 from flask import current_app, json, request as flask_request, _app_ctx_stack
@@ -93,7 +94,7 @@ class Ask(object):
         app {Flask object} -- App instance - created with Flask(__name__) (default: {None})
         route {str} -- entry point to which initial Alexa Requests are forwarded (default: {None})
         blueprint {Flask blueprint} -- Flask Blueprint instance to use instead of Flask App (default: {None})
-        stream_cache {Werkzeug BasicCache} -- BasicCache-like object for storing Audio stream data (default: {SimpleCache})
+        stream_cache {Werkzeug BasicCache} -- BasicCache-like object for storing Audio stream data (default: {Cache})
         path {str} -- path to templates yaml file for VUI dialog (default: {'templates.yaml'})
     """
 
@@ -117,7 +118,7 @@ class Ask(object):
         elif blueprint is not None:
             self.init_blueprint(blueprint, path)
         if stream_cache is None:
-            self.stream_cache = SimpleCache()
+            self.stream_cache = Cache(config={'CACHE_TYPE': 'simple'})
         else:
             self.stream_cache = stream_cache
 
